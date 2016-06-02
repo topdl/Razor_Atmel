@@ -35,7 +35,6 @@ Runs current task state.  Should only be called once in main loop.
 **********************************************************************************************************************/
 
 #include "configuration.h"
-#define COLOR_CYCLE_TIME   (u16)100    
 
 /***********************************************************************************************************************
 Global variable definitions with scope across entire project.
@@ -53,9 +52,6 @@ extern volatile u32 G_u32ApplicationFlags;             /* From main.c */
 extern volatile u32 G_u32SystemTime1ms;                /* From board-specific source file */
 extern volatile u32 G_u32SystemTime1s;                 /* From board-specific source file */
 
-extern u8 G_au8DebugScanfBuffer[];                     /* From debug.c */
-extern u8 G_u8DebugScanfCharCount;                     /* From debug.c  */
-
 
 /***********************************************************************************************************************
 Global variable definitions with scope limited to this local application.
@@ -63,8 +59,7 @@ Variable names shall start with "UserApp_" and be declared as static.
 ***********************************************************************************************************************/
 static fnCode_type UserApp_StateMachine;            /* The state machine function pointer */
 static u32 UserApp_u32Timeout;                      /* Timeout counter used across states */
-
-static u8 au8UserInputBuffer[USER_INPUT_BUFFER_SIZE];  /* Char buffer */
+static u8 songnum[]={2,1,0,1,1,2,2,2,1,1,1,2,3,3,2,1,0,1,2,2,2,2,1,1,2,1,0};
 
 /**********************************************************************************************************************
 Function Definitions
@@ -93,26 +88,20 @@ Promises:
 */
 void UserAppInitialize(void)
 {
-  u8 u8String[] = "A string to print that returns cursor to start of next line.\n\r";
- u8 u8String2[] = "Here's a number: ";
-u8 u8String3[] = " The 'cursor' was here.";
-u32 u32Number = 1234567;
+  PWMAudioSetFrequency(BUZZER1, 262);
+  PWMAudioOn(BUZZER1);
 
-  DebugPrintf(u8String);
-  DebugPrintf(u8String2);
-  DebugPrintNumber(u32Number);
-DebugPrintf(u8String3);
-DebugLineFeed();
-DebugPrintf(u8String3);
-DebugLineFeed();
-for(u8 i = 0; i < USER_INPUT_BUFFER_SIZE; i++)
+  /* If good initialization, set state to Idle */
+  if( 1 )
   {
-    au8UserInputBuffer[i] = 0;
+    UserApp_StateMachine = UserAppSM_Idle;
+  }
+  else
+  {
+    /* The task isn't properly initialized, so shut it down and don't run */
+    UserApp_StateMachine = UserAppSM_FailedInit;
   }
 
-UserApp_StateMachine=UserAppSM_Idle;
-
- 
 } /* end UserAppInitialize() */
 
 
@@ -150,39 +139,37 @@ State Machine Function Definitions
 /* Wait for a message to be queued */
 static void UserAppSM_Idle(void)
 {
-  static u8 u8NumCharsMessage[] = "\n\rCharacters in buffer: ";
-  static u8 u8BufferMessage[]   = "\n\rBuffer contents:\n\r";
-  static u8 u8EmptyMessage[]="\n\rBuffer is empty";
-  u8 u8CharCount;
- if(WasButtonPressed(BUTTON0))
+  static u8 delaycounter=2000;
+  static u8 syllablecounter=0;//all 27
+  
+  if(delaycounter==0)
   {
-    ButtonAcknowledge(BUTTON0);
-    
-    DebugPrintf(u8NumCharsMessage);
-    DebugPrintNumber(G_u8DebugScanfCharCount);
-    DebugLineFeed();
+    switch(songnum[syllablecounter])
+    {
+  case 0:
+    PWMAudioSetFrequency(BUZZER1, 262);
+    break;
+  case 1:
+    PWMAudioSetFrequency(BUZZER1, 294);
+    break;
+  case 2:
+    PWMAudioSetFrequency(BUZZER1, 294);
+    break;
+  case 3:
+    PWMAudioSetFrequency(BUZZER1, 392);
+    break;
+  default:
+      PWMAudioSetFrequency(BUZZER1, 262);
+         
+    }
+    syllablecounter++;
+    delaycounter=2000;
   }
-
- if(WasButtonPressed(BUTTON1))
+  if(syllablecounter==27)
   {
-    ButtonAcknowledge(BUTTON1);
-    
-    /* Read the buffer and print the contents */
-    u8CharCount = DebugScanf(au8UserInputBuffer);
-    au8UserInputBuffer[u8CharCount] = '\0';
-    DebugPrintf(u8BufferMessage);
-    if(u8CharCount > 0)
-    {
-      DebugPrintf(au8UserInputBuffer);
-      DebugLineFeed();
-    }
-    else
-    {
-      DebugPrintf(u8EmptyMessage);
-    }
-
+    syllablecounter=0;
   }
-
+  delaycounter--;
 
 } /* end UserAppSM_Idle() */
      
