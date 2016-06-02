@@ -89,21 +89,7 @@ Promises:
 */
 void UserAppInitialize(void)
 {
-  LedPWM(LCD_RED, LED_PWM_0);
-  LedPWM(LCD_GREEN, LED_PWM_0);
-  LedPWM(LCD_BLUE, LED_PWM_0);
-  static u16 u16Counter = COLOR_CYCLE_TIME;
-  /* If good initialization, set state to Idle */
-  if( 1 )
-  {
-    UserApp_StateMachine = UserAppSM_Idle;
-  }
-  else
-  {
-    /* The task isn't properly initialized, so shut it down and don't run */
-    UserApp_StateMachine = UserAppSM_FailedInit;
-  }
-
+ 
 } /* end UserAppInitialize() */
 
 
@@ -141,38 +127,7 @@ State Machine Function Definitions
 /* Wait for a message to be queued */
 static void UserAppSM_Idle(void)
 {
-  static LedNumberType aeCurrentLed[]  = {LCD_RED, LCD_GREEN, LCD_BLUE};
-  static LedNumberType CurrentLed[]  = {RED, GREEN, BLUE};
-  static u8 u8CurrentLedIndex  = 0;
-  static u8 u8LedCurrentLevel  = 0;
-  static u8 u8DutyCycleCounter = 0;
-  static u16 u16Counter = COLOR_CYCLE_TIME;
-  u16Counter--;
-  if(u16Counter==0)
-  {
-  if(u8DutyCycleCounter<=19)
-    {
-      u8LedCurrentLevel++;
-    }
-  else
-    {
-      u8LedCurrentLevel--;
-    }
-  u8DutyCycleCounter++;
-
-  if(u8DutyCycleCounter==39)
-  {
-    
-    u8DutyCycleCounter=0;
-    u8LedCurrentLevel=0; 
-    LedOff((LedNumberType)CurrentLed[u8CurrentLedIndex]);
-    u8CurrentLedIndex=(u8CurrentLedIndex+1)%3;
-    
-  }
-  LedPWM((LedNumberType)aeCurrentLed[u8CurrentLedIndex], (LedRateType)u8LedCurrentLevel);
-  LedPWM((LedNumberType)CurrentLed[u8CurrentLedIndex],(LedRateType)u8LedCurrentLevel);
-  u16Counter=60;
-  }
+  
   
 } /* end UserAppSM_Idle() */
      
