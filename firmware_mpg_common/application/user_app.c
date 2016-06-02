@@ -127,8 +127,56 @@ State Machine Function Definitions
 /* Wait for a message to be queued */
 static void UserAppSM_Idle(void)
 {
+  LedRateType LedHzNum[]={ LED_1HZ , LED_2HZ , LED_4HZ , LED_8HZ };
+  static u8 u8HzCounter=0;
+  static  bool bYELLOWState=FALSE;
+    if(IsButtonPressed(BUTTON3))
+    {
+      LedOn(PURPLE);
+    }
+    else
+    {
+      LedOff(PURPLE);
+    }
+    if(IsButtonPressed(BUTTON2))
+    {
+      LedOn(BLUE);
+    }
+    else
+    {
+      LedOff(BLUE);
+    }
+    if(IsButtonPressed(BUTTON1))
+    {
+      u8HzCounter=(u8HzCounter++)%3;
+    }
+    LedBlink(RED, LedHzNum[u8HzCounter]);
   
-  
+    if(bYELLOWState)
+    {
+      if(IsButtonPressed(BUTTON1))
+      {
+        u8HzCounter=(u8HzCounter++)%4;
+        LedBlink(YELLOW,LedHzNum[u8HzCounter]);
+      }
+        if(WasButtonPressed(BUTTON0))
+        {
+          ButtonAcknowledge(BUTTON0);
+          LedOff(YELLOW);
+          bYELLOWState=FALSE;
+        }
+    }
+    else
+    {
+       if(WasButtonPressed(BUTTON0))
+        {
+          ButtonAcknowledge(BUTTON0);
+          LedOn(YELLOW);
+          bYELLOWState=TRUE;
+        }
+    }
+   
+
 } /* end UserAppSM_Idle() */
      
 
