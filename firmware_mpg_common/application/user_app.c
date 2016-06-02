@@ -139,7 +139,7 @@ State Machine Function Definitions
 /* Wait for a message to be queued */
 static void UserAppSM_Idle(void)
 {
-  static u8 delaycounter=2000;
+  static u16 delaycounter=1000;
   static u8 syllablecounter=0;//all 27
   
   if(delaycounter==0)
@@ -153,7 +153,7 @@ static void UserAppSM_Idle(void)
     PWMAudioSetFrequency(BUZZER1, 294);
     break;
   case 2:
-    PWMAudioSetFrequency(BUZZER1, 294);
+    PWMAudioSetFrequency(BUZZER1, 330);
     break;
   case 3:
     PWMAudioSetFrequency(BUZZER1, 392);
@@ -163,7 +163,7 @@ static void UserAppSM_Idle(void)
          
     }
     syllablecounter++;
-    delaycounter=2000;
+    delaycounter=1000;
   }
   if(syllablecounter==27)
   {
